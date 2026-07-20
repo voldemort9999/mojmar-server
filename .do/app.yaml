@@ -1,17 +1,15 @@
-# DigitalOcean App Platform spec for Mojmar (backend proxy + web-auth page).
-# One app, one HTTPS domain:  /  → web-auth (static),  /api → backend (Node).
-# Secrets (SERVICE_ROLE_KEY, OPENROUTER_KEY) are set at deploy time, NOT in this file.
-name: mojmar
+# DigitalOcean App Platform — Mojmar is deployed as TWO separate apps, each at its
+# own root domain (no path-prefix juggling; App Platform has no preserve_path_prefix).
+# Live:
+#   backend  → https://mojmar-backend-qxnct.ondigitalocean.app   (/generate /heartbeat /balance /health)
+#   web-auth → https://mojmar-web-h2ml2.ondigitalocean.app       (Google OAuth relay page)
+# Apps were created via the DO API (scratchpad/deploy.js) with secrets injected from
+# backend/.env at deploy time. This file documents the shape; it is not auto-applied.
+# Secrets (SUPABASE_SERVICE_ROLE_KEY, OPENROUTER_KEY) are set as SECRET envs, never here.
+---
+# App 1: mojmar-backend
+name: mojmar-backend
 region: blr
-static_sites:
-  - name: web-auth
-    git:
-      repo_clone_url: https://github.com/voldemort9999/mojmar-server.git
-      branch: main
-    source_dir: /web-auth
-    catchall_document: index.html
-    routes:
-      - path: /
 services:
   - name: backend
     git:
@@ -23,9 +21,8 @@ services:
     instance_size_slug: apps-s-1vcpu-0.5gb
     instance_count: 1
     http_port: 8787
-    preserve_path_prefix: false
     routes:
-      - path: /api
+      - path: /
     envs:
       - key: SUPABASE_URL
         scope: RUN_TIME
@@ -36,3 +33,16 @@ services:
       - key: OPENROUTER_KEY
         scope: RUN_TIME
         type: SECRET
+---
+# App 2: mojmar-web
+name: mojmar-web
+region: blr
+static_sites:
+  - name: web-auth
+    git:
+      repo_clone_url: https://github.com/voldemort9999/mojmar-server.git
+      branch: main
+    source_dir: /web-auth
+    catchall_document: index.html
+    routes:
+      - path: /
