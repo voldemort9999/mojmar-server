@@ -52,7 +52,7 @@
     });
 
     const params = new URLSearchParams(location.search);
-    const port = params.get('port');          // desktop loopback port
+    const fromApp = params.get('app') === '1';   // opened by the desktop app
     const statusEl = document.getElementById('status');
     const btn = document.getElementById('google');
     const outBtn = document.getElementById('signout');
@@ -61,7 +61,8 @@
       const at = encodeURIComponent(session.access_token);
       const rt = encodeURIComponent(session.refresh_token);
       statusEl.textContent = 'Signed in ✓  — returning to Mojmar…';
-      location.href = `http://127.0.0.1:${port}/?at=${at}&rt=${rt}`;
+      // Deep link back into the desktop app (no localhost → no PNA/mixed-content block).
+      location.href = `mojmar://auth?at=${at}&rt=${rt}`;
     }
 
     // Let Google decide the account UX: already signed in → seamless (no chooser);
@@ -79,12 +80,12 @@
       const cameBack = params.get('cb') === '1';
       const { data: { session } } = await supabase.auth.getSession();
 
-      if (port) {
+      if (fromApp) {
         // Opened from the app: already signed in → relay straight away (seamless).
         if (session) { relay(session); return; }
         // Not signed in yet → Google (chooser/login only when actually needed).
         if (cameBack) { statusEl.textContent = 'Sign in to continue.'; btn.hidden = false; return; }
-        startOAuth(`${location.origin}${location.pathname}?port=${port}&cb=1`);
+        startOAuth(`${location.origin}${location.pathname}?app=1&cb=1`);
         return;
       }
 
