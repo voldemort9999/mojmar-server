@@ -1,0 +1,38 @@
+# DigitalOcean App Platform spec for Mojmar (backend proxy + web-auth page).
+# One app, one HTTPS domain:  /  → web-auth (static),  /api → backend (Node).
+# Secrets (SERVICE_ROLE_KEY, OPENROUTER_KEY) are set at deploy time, NOT in this file.
+name: mojmar
+region: blr
+static_sites:
+  - name: web-auth
+    git:
+      repo_clone_url: https://github.com/voldemort9999/mojmar-server.git
+      branch: main
+    source_dir: /web-auth
+    catchall_document: index.html
+    routes:
+      - path: /
+services:
+  - name: backend
+    git:
+      repo_clone_url: https://github.com/voldemort9999/mojmar-server.git
+      branch: main
+    source_dir: /backend
+    run_command: node server.js
+    environment_slug: node-js
+    instance_size_slug: apps-s-1vcpu-0.5gb
+    instance_count: 1
+    http_port: 8787
+    preserve_path_prefix: false
+    routes:
+      - path: /api
+    envs:
+      - key: SUPABASE_URL
+        scope: RUN_TIME
+        value: "https://dwlzelvxgtpttlfuhhbe.supabase.co"
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: OPENROUTER_KEY
+        scope: RUN_TIME
+        type: SECRET

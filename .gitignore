@@ -1,0 +1,17 @@
+# Deploy repo — only backend/ + web-auth/ are tracked (for DO App Platform).
+# Everything else in this folder is ignored.
+mojmar/
+pikabaka/
+pikabaka-analysis/
+glimp*/
+glimp*
+models*/
+.claude/
+*.txt
+*.md
+*.py
+*.exe
+start.bat
+node_modules/
+.env
+*.log
