@@ -47,8 +47,12 @@
 
     const SUPABASE_URL = 'https://dwlzelvxgtpttlfuhhbe.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_MEQhpsJOaVgg_Gy8H5YwtA_pX_EDhUp';
+    // Stateless auth broker: DON'T persist or auto-refresh. The desktop app is the sole
+    // session owner. Persisting here caused a second sign-in to relay a stale/rotated
+    // token (two clients refreshing the same family) → "Auth session missing" in the app.
+    // Now every app sign-in is a fresh OAuth → fresh tokens.
     const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
-      auth: { detectSessionInUrl: true, persistSession: true, flowType: 'implicit' }
+      auth: { detectSessionInUrl: true, persistSession: false, autoRefreshToken: false, flowType: 'implicit' }
     });
 
     const params = new URLSearchParams(location.search);
