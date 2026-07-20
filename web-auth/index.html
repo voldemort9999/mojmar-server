@@ -65,11 +65,15 @@
       location.href = `mojmar://auth?at=${at}&rt=${rt}`;
     }
 
-    // Let Google decide the account UX: already signed in → seamless (no chooser);
-    // multiple accounts / signed out → Google shows the chooser naturally.
+    // When actually authenticating, always show Google's account chooser (even for a
+    // single account) so the user sees/confirms which account. The seamless case
+    // (an existing Mojmar session) never reaches here — it relays without OAuth.
     function startOAuth(redirectTo) {
       statusEl.textContent = 'Opening Google…';
-      supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo } });
+      supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo, queryParams: { prompt: 'select_account' } },
+      });
     }
 
     async function init() {
