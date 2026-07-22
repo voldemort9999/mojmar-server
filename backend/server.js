@@ -154,6 +154,8 @@ app.post("/create-payment", auth, async (req, res) => {
         notify: { sms: false, email: false },
         reminder_enable: false,
         notes: { user_id: req.userId, pack: packId, quantity: String(qty), seconds: String(seconds) },
+        // Show the brand (not the individual's legal name) on the checkout page.
+        options: { checkout: { name: "Mojmar" } },
       }),
     });
     link = await r.json();
