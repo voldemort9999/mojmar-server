@@ -24,9 +24,10 @@ if (!paymentsReady) console.warn("[proxy] Razorpay env not set — /create-payme
 
 // Server-authoritative packs. Client only sends a pack id + quantity; price and
 // seconds are decided HERE (never trust client amounts). ₹599=60min, ₹159=10min.
+// Pack ids must match the payments_pack_check DB constraint ('p599','p159').
 const PACKS = {
-  m60: { price_inr: 599, seconds: 3600, label: "60 minutes" },
-  m10: { price_inr: 159, seconds: 600, label: "10 minutes" },
+  p599: { price_inr: 599, seconds: 3600, label: "60 minutes" },
+  p159: { price_inr: 159, seconds: 600, label: "10 minutes" },
 };
 const MAX_QTY = 10;
 
